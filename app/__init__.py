@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from config.settings import Config
 from app.extensions import db
-from app.controllers import autor_bp, libro_bp
+from app.controllers import autor_bp, libro_bp, usuario_bp, prestamo_bp, tools_bp
 
 def create_app(config_class=Config):
     """
@@ -21,6 +21,9 @@ def create_app(config_class=Config):
     # Registrar Blueprints de controladores
     app.register_blueprint(autor_bp, url_prefix='/api/autores')
     app.register_blueprint(libro_bp, url_prefix='/api/libros')
+    app.register_blueprint(usuario_bp, url_prefix='/api/usuarios')
+    app.register_blueprint(prestamo_bp, url_prefix='/api/prestamos')
+    app.register_blueprint(tools_bp, url_prefix='/api/tools')
 
     # Crear tablas en MySQL automaticamente si no existen
     with app.app_context():
@@ -34,18 +37,15 @@ def create_app(config_class=Config):
     def index():
         return jsonify({
             'mensaje': '¡Bienvenido a la API de miBiblioteca!',
-            'version': '1.0.0',
+            'version': '2.0.0',
             'estado': 'activo',
             'endpoints_disponibles': {
-                'autores': {
-                    'listar_y_crear': '/api/autores/',
-                    'detalle_actualizar_eliminar': '/api/autores/<id>'
-                },
-                'libros': {
-                    'listar_y_crear': '/api/libros/',
-                    'filtros_disponibles': '/api/libros/?autor_id=<id>&disponible=true&search=<texto>',
-                    'detalle_actualizar_eliminar': '/api/libros/<id>'
-                }
+                'autores': '/api/autores/',
+                'libros': '/api/libros/',
+                'usuarios': '/api/usuarios/',
+                'prestamos': '/api/prestamos/',
+                'tools_citas': '/api/tools/citas',
+                'tools_calculadora': '/api/tools/calculadora'
             }
         })
 
@@ -58,4 +58,4 @@ def create_app(config_class=Config):
     def server_error(error):
         return jsonify({'success': False, 'message': 'Error interno del servidor.'}), 500
 
-    return app
+    return app

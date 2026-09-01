@@ -22,6 +22,17 @@ def find_column(df_columns, candidates):
             if norm_c == normalize_column_name(cand):
                 return col
 
+    # 2. Coincidencia parcial
+    for col in df_columns:
+        norm_c = normalize_column_name(col)
+        for cand in candidates:
+            if normalize_column_name(cand) in norm_c:
+                return col
+
+    return None
+
+def import_from_excel(file_path):
+    """Lee un archivo Excel o CSV e importa autores y libros a la base de datos."""
     try:
         if file_path.endswith('.csv'):
             df = pd.read_csv(file_path)
@@ -34,9 +45,9 @@ def find_column(df_columns, candidates):
     print(f"[+] Archivo leido con exito. Total de filas encontradas: {len(df)}")
     print(f"[*] Columnas detectadas: {list(df.columns)}")
     # Mapear columnas esperadas según las cabeceras exactas de tu archivo
-    col_obra = find_column(df.columns, ['Titulo de Obra', 'Título de Obra', 'Titulo', 'Obra'])
-    col_autor = find_column(df.columns, ['Autor', 'Autores'])
-    col_genero = find_column(df.columns, ['Género', 'Genero'])
+    col_obra = find_column(df.columns, ['Titulo de Obra', 'Título de Obra', 'Titulo', 'Obra', 'Libro'])
+    col_autor = find_column(df.columns, ['Autor', 'Autores', 'Autor(es)'])
+    col_genero = find_column(df.columns, ['Género', 'Genero', 'Categoría', 'Categoria'])
     col_recuento = find_column(df.columns, ['Recuento Total', 'Recuento'])
 
     if not col_obra:
@@ -94,6 +105,7 @@ def find_column(df_columns, candidates):
             autor_key = autor_nombre.lower()
             if autor_key in autores_db:
                 autor = autores_db[autor_key]
+            else:
                 autor = Autor(nombre=autor_nombre)
                 db.session.add(autor)
                 db.session.flush() # Genera el id sin hacer commit completo
@@ -111,6 +123,7 @@ def find_column(df_columns, candidates):
             libros_creados += 1
 
         # Confirmar todos los cambios en la base de datos
+        db.session.commit()
 
         print("\n" + "="*50)
         print(" RESUMEN DE IMPORTACION A LA BASE DE DATOS")
@@ -130,8 +143,11 @@ if __name__ == '__main__':
         archivo = sys.argv[1]
     else:
         # Buscar archivos .xlsx o .xls comunes en el directorio actual
+        candidatos = [f for f in os.listdir('.') if f.endswith('.xlsx') or f.endswith('.xls')]
+        if candidatos:
             archivo = candidatos[0]
             print(f"[*] No se especificó archivo, usando archivo detectado: '{archivo}'")
+        else:
             print("[-] Uso del script:")
             print("    python import_excel.py <nombre_o_ruta_del_archivo.xlsx>")
             sys.exit(1)

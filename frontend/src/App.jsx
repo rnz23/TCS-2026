@@ -4,18 +4,27 @@ import Navbar from './components/Navbar';
 import Notification from './components/Notification';
 import LibrosList from './components/libros/LibrosList';
 import AutoresList from './components/autores/AutoresList';
-import { BookOpen, Users, AlertCircle, RefreshCw } from 'lucide-react';
+import UsuariosList from './components/usuarios/UsuariosList';
+import PrestamosList from './components/prestamos/PrestamosList';
+import ToolsView from './components/tools/ToolsView';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState('libros'); // 'libros' | 'autores'
+  const [currentTab, setCurrentTab] = useState('libros'); // 'libros' | 'autores' | 'usuarios' | 'prestamos' | 'herramientas'
   const [libros, setLibros] = useState([]);
   const [autores, setAutores] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [prestamos, setPrestamos] = useState([]);
+
   const [loadingLibros, setLoadingLibros] = useState(false);
   const [loadingAutores, setLoadingAutores] = useState(false);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false);
+  const [loadingPrestamos, setLoadingPrestamos] = useState(false);
+
   const [notification, setNotification] = useState(null);
   const [backendOnline, setBackendOnline] = useState(true);
 
-  // Author details modal state
+  // Modal detalles de autor
   const [selectedAutorDetalle, setSelectedAutorDetalle] = useState(null);
   const [isDetalleOpen, setIsDetalleOpen] = useState(false);
 
@@ -58,9 +67,43 @@ export default function App() {
     }
   };
 
+  const fetchUsuarios = async (filters = {}) => {
+    try {
+      setLoadingUsuarios(true);
+      const res = await api.getUsuarios(filters);
+      if (res.success) {
+        setUsuarios(res.data || []);
+        setBackendOnline(true);
+      }
+    } catch (err) {
+      console.error("Error al cargar usuarios:", err);
+      showNotification(err.message || 'Error al cargar usuarios.', 'error');
+    } finally {
+      setLoadingUsuarios(false);
+    }
+  };
+
+  const fetchPrestamos = async (filters = {}) => {
+    try {
+      setLoadingPrestamos(true);
+      const res = await api.getPrestamos(filters);
+      if (res.success) {
+        setPrestamos(res.data || []);
+        setBackendOnline(true);
+      }
+    } catch (err) {
+      console.error("Error al cargar préstamos:", err);
+      showNotification(err.message || 'Error al cargar préstamos.', 'error');
+    } finally {
+      setLoadingPrestamos(false);
+    }
+  };
+
   useEffect(() => {
     fetchAutores();
     fetchLibros();
+    fetchUsuarios();
+    fetchPrestamos();
   }, []);
 
   // --- ACCIONES AUTORES ---
@@ -83,7 +126,7 @@ export default function App() {
       if (res.success) {
         showNotification('Autor actualizado correctamente.');
         await fetchAutores();
-        await fetchLibros(); // Refrescar por si cambió el nombre del autor en los libros
+        await fetchLibros();
       }
     } catch (err) {
       showNotification(err.message, 'error');
@@ -123,7 +166,7 @@ export default function App() {
       if (res.success) {
         showNotification('Libro creado exitosamente.');
         await fetchLibros();
-        await fetchAutores(); // Actualizar conteo de libros
+        await fetchAutores();
       }
     } catch (err) {
       showNotification(err.message, 'error');
@@ -185,9 +228,65 @@ export default function App() {
     }
   };
 
+  // --- ACCIONES USUARIOS (Stateful) ---
+  const handleCrearUsuario = async (data) => {
+    try {
+      const res = await api.createUsuario(data);
+      if (res.success) {
+        showNotification('Usuario registrado exitosamente.');
+        await fetchUsuarios();
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+      throw err;
+    }
+  };
+
+  const handleEliminarUsuario = async (id) => {
+    try {
+      const res = await api.deleteUsuario(id);
+      if (res.success) {
+        showNotification('Usuario eliminado correctamente.');
+        await fetchUsuarios();
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  };
+
+  // --- ACCIONES PRÉSTAMOS (Stateful) ---
+  const handleCrearPrestamo = async (data) => {
+    try {
+      const res = await api.createPrestamo(data);
+      if (res.success) {
+        showNotification('Préstamo registrado exitosamente.');
+        await fetchPrestamos();
+        await fetchLibros(); // Actualizar estado disponible de libros
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+      throw err;
+    }
+  };
+
+  const handleDevolverPrestamo = async (id) => {
+    try {
+      const res = await api.devolverPrestamo(id);
+      if (res.success) {
+        showNotification('Devolución registrada correctamente.');
+        await fetchPrestamos();
+        await fetchLibros(); // Restaurar estado disponible del libro
+      }
+    } catch (err) {
+      showNotification(err.message, 'error');
+    }
+  };
+
   const handleRefreshAll = () => {
     fetchAutores();
     fetchLibros();
+    fetchUsuarios();
+    fetchPrestamos();
   };
 
   return (
@@ -198,6 +297,8 @@ export default function App() {
         setCurrentTab={setCurrentTab}
         booksCount={libros.length}
         authorsCount={autores.length}
+        usersCount={usuarios.length}
+        loansCount={prestamos.length}
       />
 
       {/* Backend connection alert if offline */}
@@ -216,7 +317,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grow">
-        {currentTab === 'libros' ? (
+        {currentTab === 'libros' && (
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
@@ -237,7 +338,9 @@ export default function App() {
               onImportarExcel={handleImportarExcel}
             />
           </section>
-        ) : (
+        )}
+
+        {currentTab === 'autores' && (
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
@@ -259,6 +362,59 @@ export default function App() {
             />
           </section>
         )}
+
+        {currentTab === 'usuarios' && (
+          <section>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Registro de Usuarios (Stateful)</h1>
+                <p className="text-sm text-slate-500">Gestiona los lectores registrados en la base de datos (Estudiantes, Profesores, General).</p>
+              </div>
+            </div>
+
+            <UsuariosList
+              usuarios={usuarios}
+              loading={loadingUsuarios}
+              onCrearUsuario={handleCrearUsuario}
+              onEliminarUsuario={handleEliminarUsuario}
+              onFiltrar={fetchUsuarios}
+            />
+          </section>
+        )}
+
+        {currentTab === 'prestamos' && (
+          <section>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Control de Préstamos (Stateful)</h1>
+                <p className="text-sm text-slate-500">Presta libros a los usuarios registrados y gestiona el historial de devoluciones.</p>
+              </div>
+            </div>
+
+            <PrestamosList
+              prestamos={prestamos}
+              libros={libros}
+              usuarios={usuarios}
+              loading={loadingPrestamos}
+              onCrearPrestamo={handleCrearPrestamo}
+              onDevolverPrestamo={handleDevolverPrestamo}
+              onFiltrar={fetchPrestamos}
+            />
+          </section>
+        )}
+
+        {currentTab === 'herramientas' && (
+          <section>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Herramientas Utilitarias (Stateless)</h1>
+                <p className="text-sm text-slate-500">Cita libros en normas académicas o calcula multas y plazos en tiempo real sin guardar en BD.</p>
+              </div>
+            </div>
+
+            <ToolsView showNotification={showNotification} />
+          </section>
+        )}
       </main>
 
       {/* Toast Notification */}
@@ -269,4 +425,3 @@ export default function App() {
     </div>
   );
 }
-

@@ -33,7 +33,6 @@ venv.bak/
 miBiblioteca_env/
 
 # Variables de entorno y credenciales sensibles
-.env
 .env.local
 .env.*.local
 !.env.example
