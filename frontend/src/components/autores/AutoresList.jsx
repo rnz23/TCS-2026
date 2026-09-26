@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   Users, UserPlus, Search, Edit2, Trash2, BookOpen, 
   Globe, Calendar, ArrowUpDown, ArrowUpAZ, ArrowDownAZ, 
@@ -18,6 +19,7 @@ export default function AutoresList({
   isDetalleOpen,
   setIsDetalleOpen,
 }) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('az'); // 'az' | 'za' | 'reciente'
   const [currentPage, setCurrentPage] = useState(1);
@@ -41,9 +43,9 @@ export default function AutoresList({
 
     // 2. Ordenamiento
     if (sortBy === 'az') {
-      result.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' }));
+      result.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', undefined, { sensitivity: 'base' }));
     } else if (sortBy === 'za') {
-      result.sort((a, b) => (b.nombre || '').localeCompare(a.nombre || '', 'es', { sensitivity: 'base' }));
+      result.sort((a, b) => (b.nombre || '').localeCompare(a.nombre || '', undefined, { sensitivity: 'base' }));
     } else if (sortBy === 'reciente') {
       result.sort((a, b) => b.id - a.id);
     }
@@ -86,7 +88,7 @@ export default function AutoresList({
   };
 
   const handleDelete = (autor) => {
-    if (window.confirm(`¿Estás seguro de que deseas eliminar al autor "${autor.nombre}"? Sus libros asociados también serán eliminados.`)) {
+    if (window.confirm(t('authors.delete_confirm', { name: autor.nombre }))) {
       onEliminarAutor(autor.id);
     }
   };
@@ -101,7 +103,7 @@ export default function AutoresList({
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Buscar autor por nombre o nacionalidad..."
+              placeholder={t('authors.search_placeholder')}
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
@@ -109,7 +111,7 @@ export default function AutoresList({
             {searchTerm && (
               <button
                 onClick={() => { setSearchTerm(''); setCurrentPage(1); }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -122,7 +124,7 @@ export default function AutoresList({
             className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-100 transition-all cursor-pointer shrink-0"
           >
             <UserPlus className="w-4 h-4" />
-            <span>Nuevo Autor</span>
+            <span>{t('authors.new_author')}</span>
           </button>
         </div>
 
@@ -132,15 +134,15 @@ export default function AutoresList({
             {/* Sort Dropdown */}
             <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
               <ArrowUpDown className="w-3.5 h-3.5 text-indigo-500" />
-              <span className="font-semibold text-slate-600 mr-1">Orden:</span>
+              <span className="font-semibold text-slate-600 mr-1">{t('common.order')}</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="bg-transparent text-slate-800 font-medium focus:outline-none cursor-pointer"
               >
-                <option value="az">Nombre (A - Z)</option>
-                <option value="za">Nombre (Z - A)</option>
-                <option value="reciente">Más Recientes (ID)</option>
+                <option value="az">{t('authors.sort_az')}</option>
+                <option value="za">{t('authors.sort_za')}</option>
+                <option value="reciente">{t('authors.sort_recent')}</option>
               </select>
             </div>
 
@@ -149,7 +151,7 @@ export default function AutoresList({
                 onClick={() => { setSearchTerm(''); setSortBy('az'); setCurrentPage(1); }}
                 className="text-slate-500 hover:text-rose-600 underline cursor-pointer ml-1 font-medium flex items-center gap-1"
               >
-                <X className="w-3 h-3" /> Limpiar búsqueda
+                <X className="w-3 h-3" /> {t('common.clean_search')}
               </button>
             )}
           </div>
@@ -157,8 +159,8 @@ export default function AutoresList({
           {/* Records Counter & Page Size */}
           <div className="flex items-center gap-2 text-slate-500 ml-auto">
             <span>
-              Mostrando <strong className="text-slate-700">{totalItems > 0 ? (validCurrentPage - 1) * itemsPerPage + 1 : 0}</strong>-
-              <strong className="text-slate-700">{Math.min(validCurrentPage * itemsPerPage, totalItems)}</strong> de <strong className="text-slate-700">{totalItems}</strong>
+              {t('common.showing')} <strong className="text-slate-700">{totalItems > 0 ? (validCurrentPage - 1) * itemsPerPage + 1 : 0}</strong>-
+              <strong className="text-slate-700">{Math.min(validCurrentPage * itemsPerPage, totalItems)}</strong> {t('common.of')} <strong className="text-slate-700">{totalItems}</strong>
             </span>
             <span className="text-slate-300">|</span>
             <select
@@ -166,10 +168,10 @@ export default function AutoresList({
               onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
               className="bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-xs text-slate-700 cursor-pointer"
             >
-              <option value={15}>15 por pág.</option>
-              <option value={25}>25 por pág.</option>
-              <option value={50}>50 por pág.</option>
-              <option value={100}>100 por pág.</option>
+              <option value={15}>{t('common.per_page', { count: 15 })}</option>
+              <option value={25}>{t('common.per_page', { count: 25 })}</option>
+              <option value={50}>{t('common.per_page', { count: 50 })}</option>
+              <option value={100}>{t('common.per_page', { count: 100 })}</option>
             </select>
           </div>
         </div>
@@ -188,9 +190,9 @@ export default function AutoresList({
       ) : paginatedAutores.length === 0 ? (
         <div className="text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl p-8">
           <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-slate-700">No se encontraron autores</h3>
+          <h3 className="text-base font-semibold text-slate-700">{t('authors.empty_title')}</h3>
           <p className="text-sm text-slate-500 mt-1">
-            {searchTerm ? 'Prueba con otro término de búsqueda.' : 'Agrega o importa autores para comenzar.'}
+            {searchTerm ? t('authors.empty_desc_search') : t('authors.empty_desc_default')}
           </p>
         </div>
       ) : (
@@ -206,7 +208,7 @@ export default function AutoresList({
                       className="flex items-center gap-1.5 hover:text-indigo-600 cursor-pointer group"
                       title="Alternar orden A-Z / Z-A"
                     >
-                      <span>Nombre del Autor</span>
+                      <span>{t('authors.col_name')}</span>
                       {sortBy === 'az' ? (
                         <ArrowUpAZ className="w-3.5 h-3.5 text-indigo-600" />
                       ) : sortBy === 'za' ? (
@@ -216,10 +218,10 @@ export default function AutoresList({
                       )}
                     </button>
                   </th>
-                  <th className="py-3 px-4 min-w-[140px]">Nacionalidad</th>
-                  <th className="py-3 px-4 text-center min-w-[150px]">Obras</th>
-                  <th className="py-3 px-4 text-center">Fecha Registro</th>
-                  <th className="py-3 px-4 text-right pr-6">Acciones</th>
+                  <th className="py-3 px-4 min-w-[140px]">{t('authors.col_nationality')}</th>
+                  <th className="py-3 px-4 text-center min-w-[150px]">{t('authors.col_works')}</th>
+                  <th className="py-3 px-4 text-center">{t('authors.col_registered')}</th>
+                  <th className="py-3 px-4 text-right pr-6">{t('authors.col_actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -262,10 +264,10 @@ export default function AutoresList({
                       <button
                         onClick={() => onVerLibrosAutor(autor.id)}
                         className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
-                        title="Ver listado de libros de este autor"
+                        title={t('authors.view_books_tooltip')}
                       >
                         <BookOpen className="w-3.5 h-3.5" />
-                        <span>Ver Libros</span>
+                        <span>{t('authors.view_books')}</span>
                       </button>
                     </td>
 
@@ -280,14 +282,14 @@ export default function AutoresList({
                         <button
                           onClick={() => handleOpenEdit(autor)}
                           className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                          title="Editar autor"
+                          title={t('authors.edit_author_tooltip')}
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(autor)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                          title="Eliminar autor"
+                          title={t('authors.delete_author_tooltip')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -303,7 +305,7 @@ export default function AutoresList({
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3.5 bg-slate-50/70 border-t border-slate-200 text-xs text-slate-600">
               <div>
-                Página <strong className="text-slate-800">{validCurrentPage}</strong> de <strong className="text-slate-800">{totalPages}</strong>
+                {t('common.page')} <strong className="text-slate-800">{validCurrentPage}</strong> {t('common.of')} <strong className="text-slate-800">{totalPages}</strong>
               </div>
 
               <div className="flex items-center gap-1">
@@ -311,8 +313,8 @@ export default function AutoresList({
                 <button
                   onClick={() => handlePageChange(1)}
                   disabled={validCurrentPage === 1}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  title="Primera página"
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title={t('authors.first_page_tooltip')}
                 >
                   <ChevronsLeft className="w-4 h-4" />
                 </button>
@@ -321,10 +323,10 @@ export default function AutoresList({
                 <button
                   onClick={() => handlePageChange(validCurrentPage - 1)}
                   disabled={validCurrentPage === 1}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Anterior</span>
+                  <span>{t('common.previous')}</span>
                 </button>
 
                 {/* Quick Page Jump Buttons */}
@@ -345,7 +347,7 @@ export default function AutoresList({
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`w-7 h-7 rounded-lg font-semibold text-xs transition-colors ${
+                        className={`w-7 h-7 rounded-lg font-semibold text-xs transition-colors cursor-pointer ${
                           validCurrentPage === pageNum
                             ? 'bg-indigo-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -361,9 +363,9 @@ export default function AutoresList({
                 <button
                   onClick={() => handlePageChange(validCurrentPage + 1)}
                   disabled={validCurrentPage === totalPages}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
                 >
-                  <span>Siguiente</span>
+                  <span>{t('common.next')}</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
@@ -371,8 +373,8 @@ export default function AutoresList({
                 <button
                   onClick={() => handlePageChange(totalPages)}
                   disabled={validCurrentPage === totalPages}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  title="Última página"
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title={t('authors.last_page_tooltip')}
                 >
                   <ChevronsRight className="w-4 h-4" />
                 </button>

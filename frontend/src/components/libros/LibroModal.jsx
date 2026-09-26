@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, BookPlus, Save, Loader2, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { X, BookPlus, Save, Loader2 } from 'lucide-react';
 
 export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autores = [] }) {
+  const { t } = useTranslation();
   const [titulo, setTitulo] = useState('');
   const [autorId, setAutorId] = useState('');
   const [genero, setGenero] = useState('');
@@ -32,11 +34,11 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!titulo.trim()) {
-      setError('El título del libro es obligatorio.');
+      setError(t('books.modal.err_title_required'));
       return;
     }
     if (!autorId) {
-      setError('Debes seleccionar un autor válido.');
+      setError(t('books.modal.err_author_required'));
       return;
     }
 
@@ -52,7 +54,7 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
       });
       onClose();
     } catch (err) {
-      setError(err.message || 'Error al guardar el libro.');
+      setError(err.message || t('books.modal.err_save'));
     } finally {
       setLoading(false);
     }
@@ -68,7 +70,7 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
               {libroToEdit ? <Save className="w-4 h-4" /> : <BookPlus className="w-4 h-4" />}
             </div>
             <h3 className="text-base font-semibold text-slate-800">
-              {libroToEdit ? 'Editar Libro' : 'Nuevo Libro'}
+              {libroToEdit ? t('books.modal.edit_title') : t('books.modal.new_title')}
             </h3>
           </div>
           <button
@@ -89,11 +91,11 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Título del Libro <span className="text-rose-500">*</span>
+              {t('books.modal.title_label')} <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
-              placeholder="Ej. Cien años de soledad"
+              placeholder={t('books.modal.title_placeholder')}
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
@@ -103,11 +105,11 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Autor Asignado <span className="text-rose-500">*</span>
+              {t('books.modal.author_label')} <span className="text-rose-500">*</span>
             </label>
             {autores.length === 0 ? (
               <p className="text-xs text-amber-600 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
-                ⚠️ Primero debes registrar al menos un autor antes de crear un libro.
+                {t('books.modal.no_authors_warning')}
               </p>
             ) : (
               <select
@@ -115,7 +117,7 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
                 onChange={(e) => setAutorId(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
               >
-                <option value="" disabled>Selecciona un autor...</option>
+                <option value="" disabled>{t('books.modal.select_author')}</option>
                 {autores.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.nombre} {a.nacionalidad ? `(${a.nacionalidad})` : ''}
@@ -128,11 +130,11 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-                Género
+                {t('books.modal.genre_label')}
               </label>
               <input
                 type="text"
-                placeholder="Ej. Realismo Mágico"
+                placeholder={t('books.modal.genre_placeholder')}
                 value={genero}
                 onChange={(e) => setGenero(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
@@ -141,11 +143,11 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-                Año de Publicación
+                {t('books.modal.year_label')}
               </label>
               <input
                 type="number"
-                placeholder="Ej. 1967"
+                placeholder={t('books.modal.year_placeholder')}
                 value={anioPublicacion}
                 onChange={(e) => setAnioPublicacion(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
@@ -164,7 +166,7 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
               />
               <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 relative"></div>
               <span className="text-sm font-medium text-slate-700">
-                {disponible ? 'Disponible para préstamo' : 'Prestado / No disponible'}
+                {disponible ? t('books.modal.available_label') : t('books.modal.borrowed_label')}
               </span>
             </label>
           </div>
@@ -174,22 +176,22 @@ export default function LibroModal({ isOpen, onClose, onSave, libroToEdit, autor
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
-              Cancelar
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading || autores.length === 0}
-              className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-md shadow-indigo-200 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-md shadow-indigo-200 transition-all disabled:opacity-50 cursor-pointer"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Guardando...</span>
+                  <span>{t('common.saving')}</span>
                 </>
               ) : (
-                <span>{libroToEdit ? 'Actualizar' : 'Crear Libro'}</span>
+                <span>{libroToEdit ? t('books.modal.btn_update') : t('books.modal.btn_create')}</span>
               )}
             </button>
           </div>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, QrCode, Download, Printer, Sparkles, Tag, User } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function QrModal({ isOpen, onClose, libro }) {
+  const { t } = useTranslation();
   const [qrData, setQrData] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -38,10 +40,16 @@ export default function QrModal({ isOpen, onClose, libro }) {
   const handlePrint = () => {
     const printWindow = window.open('', '_blank', 'width=450,height=550');
     if (printWindow && qrData) {
+      const cardBadge = t('tools.qr_modal.print_card_badge', { id: libro.id });
+      const printTitle = t('tools.qr_modal.print_title', { id: libro.id });
+      const authorLabel = t('tools.qr_modal.print_author_label');
+      const scanInstruction = t('tools.qr_modal.scan_instruction');
+      const authorName = libro.autor_nombre || t('common.anonymous');
+
       printWindow.document.write(`
         <html>
           <head>
-            <title>Etiqueta QR - Libro #${libro.id}</title>
+            <title>${printTitle}</title>
             <style>
               body { font-family: sans-serif; text-align: center; padding: 20px; }
               .card { border: 2px dashed #333; border-radius: 12px; padding: 16px; max-width: 320px; margin: 0 auto; }
@@ -53,11 +61,11 @@ export default function QrModal({ isOpen, onClose, libro }) {
           </head>
           <body>
             <div class="card">
-              <span class="badge">BIBLIOTECA - ID #${libro.id}</span>
+              <span class="badge">${cardBadge}</span>
               <h2>${libro.titulo}</h2>
-              <p><strong>Autor:</strong> ${libro.autor_nombre || 'Anónimo'}</p>
+              <p><strong>${authorLabel}</strong> ${authorName}</p>
               <img src="${qrData.qr_base64}" />
-              <p style="font-size: 10px; color: #9ca3af;">Escanear para consultar disponibilidad y ficha</p>
+              <p style="font-size: 10px; color: #9ca3af;">${scanInstruction}</p>
             </div>
             <script>window.print(); setTimeout(() => window.close(), 500);</script>
           </body>
@@ -80,7 +88,7 @@ export default function QrModal({ isOpen, onClose, libro }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold">Ficha / Código QR</h3>
+                <h3 className="text-lg font-bold">{t('tools.qr_modal.title')}</h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 uppercase tracking-wide">
                   Stateless
                 </span>
@@ -101,7 +109,7 @@ export default function QrModal({ isOpen, onClose, libro }) {
           <div className="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200 rounded-2xl shadow-inner">
             {loading ? (
               <div className="w-48 h-48 bg-slate-200 rounded-2xl animate-pulse flex items-center justify-center text-xs text-slate-400">
-                Generando QR en memoria...
+                {t('tools.qr_modal.generating')}
               </div>
             ) : qrData ? (
               <div className="space-y-3">
@@ -115,7 +123,7 @@ export default function QrModal({ isOpen, onClose, libro }) {
                     ID #{libro.id}
                   </span>
                   <p className="font-semibold text-slate-800 line-clamp-1">{libro.titulo}</p>
-                  <p className="text-slate-500">{libro.autor_nombre || 'Anónimo'}</p>
+                  <p className="text-slate-500">{libro.autor_nombre || t('common.anonymous')}</p>
                 </div>
               </div>
             ) : null}
@@ -124,7 +132,7 @@ export default function QrModal({ isOpen, onClose, libro }) {
           <div className="text-xs text-slate-500 bg-violet-50/70 border border-violet-100 rounded-xl p-3 text-left flex items-start gap-2">
             <Sparkles className="w-4 h-4 text-violet-600 shrink-0 mt-0.5" />
             <p>
-              El código QR se renderiza como imagen <strong>Base64 puramente en memoria (Stateless)</strong>, ideal para imprimir etiquetas físicas sin crear archivos residuales en el servidor.
+              {t('tools.qr_modal.stateless_info')}
             </p>
           </div>
         </div>
@@ -135,7 +143,7 @@ export default function QrModal({ isOpen, onClose, libro }) {
             onClick={onClose}
             className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
           >
-            Cerrar
+            {t('common.close')}
           </button>
 
           <div className="flex items-center gap-2">
@@ -143,20 +151,20 @@ export default function QrModal({ isOpen, onClose, libro }) {
               onClick={handleDownload}
               disabled={loading || !qrData}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all cursor-pointer shadow-xs"
-              title="Descargar imagen PNG"
+              title={t('tools.qr_modal.download_tooltip')}
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Descargar</span>
+              <span>{t('tools.qr_modal.download_btn')}</span>
             </button>
 
             <button
               onClick={handlePrint}
               disabled={loading || !qrData}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-200 transition-all cursor-pointer"
-              title="Imprimir etiqueta física"
+              title={t('tools.qr_modal.print_tooltip')}
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Imprimir Etiqueta</span>
+              <span>{t('tools.qr_modal.print_btn')}</span>
             </button>
           </div>
         </div>

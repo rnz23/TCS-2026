@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from './services/api';
 import Navbar from './components/Navbar';
 import Notification from './components/Notification';
@@ -10,6 +11,7 @@ import ToolsView from './components/tools/ToolsView';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function App() {
+  const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState('libros'); // 'libros' | 'autores' | 'usuarios' | 'prestamos' | 'herramientas'
   const [libros, setLibros] = useState([]);
   const [autores, setAutores] = useState([]);
@@ -44,7 +46,7 @@ export default function App() {
     } catch (err) {
       console.error("Error al cargar autores:", err);
       setBackendOnline(false);
-      showNotification(err.message || 'No se pudo conectar con el servidor backend.', 'error');
+      showNotification(err.message || t('app.notification_backend_error'), 'error');
     } finally {
       setLoadingAutores(false);
     }
@@ -61,7 +63,7 @@ export default function App() {
     } catch (err) {
       console.error("Error al cargar libros:", err);
       setBackendOnline(false);
-      showNotification(err.message || 'No se pudo conectar con el servidor backend.', 'error');
+      showNotification(err.message || t('app.notification_backend_error'), 'error');
     } finally {
       setLoadingLibros(false);
     }
@@ -77,7 +79,7 @@ export default function App() {
       }
     } catch (err) {
       console.error("Error al cargar usuarios:", err);
-      showNotification(err.message || 'Error al cargar usuarios.', 'error');
+      showNotification(err.message || t('app.notification_users_error'), 'error');
     } finally {
       setLoadingUsuarios(false);
     }
@@ -93,7 +95,7 @@ export default function App() {
       }
     } catch (err) {
       console.error("Error al cargar préstamos:", err);
-      showNotification(err.message || 'Error al cargar préstamos.', 'error');
+      showNotification(err.message || t('app.notification_loans_error'), 'error');
     } finally {
       setLoadingPrestamos(false);
     }
@@ -111,7 +113,7 @@ export default function App() {
     try {
       const res = await api.createAutor(data);
       if (res.success) {
-        showNotification('Autor registrado exitosamente.');
+        showNotification(t('app.notification_author_created'));
         await fetchAutores();
       }
     } catch (err) {
@@ -124,7 +126,7 @@ export default function App() {
     try {
       const res = await api.updateAutor(id, data);
       if (res.success) {
-        showNotification('Autor actualizado correctamente.');
+        showNotification(t('app.notification_author_updated'));
         await fetchAutores();
         await fetchLibros();
       }
@@ -138,7 +140,7 @@ export default function App() {
     try {
       const res = await api.deleteAutor(id);
       if (res.success) {
-        showNotification('Autor y sus libros eliminados exitosamente.');
+        showNotification(t('app.notification_author_deleted'));
         await fetchAutores();
         await fetchLibros();
       }
@@ -164,7 +166,7 @@ export default function App() {
     try {
       const res = await api.createLibro(data);
       if (res.success) {
-        showNotification('Libro creado exitosamente.');
+        showNotification(t('app.notification_book_created'));
         await fetchLibros();
         await fetchAutores();
       }
@@ -178,7 +180,7 @@ export default function App() {
     try {
       const res = await api.updateLibro(id, data);
       if (res.success) {
-        showNotification('Libro actualizado exitosamente.');
+        showNotification(t('app.notification_book_updated'));
         await fetchLibros();
       }
     } catch (err) {
@@ -191,7 +193,7 @@ export default function App() {
     try {
       const res = await api.deleteLibro(id);
       if (res.success) {
-        showNotification('Libro eliminado correctamente.');
+        showNotification(t('app.notification_book_deleted'));
         await fetchLibros();
         await fetchAutores();
       }
@@ -204,12 +206,12 @@ export default function App() {
     try {
       const res = await api.importExcel(file);
       if (res.success) {
-        showNotification(res.message || 'Importación completada con éxito.');
+        showNotification(res.message || t('app.notification_excel_success'));
         await fetchLibros();
         await fetchAutores();
       }
     } catch (err) {
-      showNotification(err.message || 'Error al importar archivo Excel.', 'error');
+      showNotification(err.message || t('app.notification_excel_error'), 'error');
     }
   };
 
@@ -218,7 +220,9 @@ export default function App() {
       const nuevoEstado = !libro.disponible;
       const res = await api.updateLibro(libro.id, { disponible: nuevoEstado });
       if (res.success) {
-        showNotification(`Libro marcado como ${nuevoEstado ? 'Disponible' : 'Prestado'}.`);
+        showNotification(t('app.notification_book_marked', {
+          status: nuevoEstado ? t('common.available') : t('common.borrowed')
+        }));
         setLibros((prev) =>
           prev.map((l) => (l.id === libro.id ? { ...l, disponible: nuevoEstado } : l))
         );
@@ -233,7 +237,7 @@ export default function App() {
     try {
       const res = await api.createUsuario(data);
       if (res.success) {
-        showNotification('Usuario registrado exitosamente.');
+        showNotification(t('app.notification_user_created'));
         await fetchUsuarios();
       }
     } catch (err) {
@@ -246,7 +250,7 @@ export default function App() {
     try {
       const res = await api.deleteUsuario(id);
       if (res.success) {
-        showNotification('Usuario eliminado correctamente.');
+        showNotification(t('app.notification_user_deleted'));
         await fetchUsuarios();
       }
     } catch (err) {
@@ -259,7 +263,7 @@ export default function App() {
     try {
       const res = await api.createPrestamo(data);
       if (res.success) {
-        showNotification('Préstamo registrado exitosamente.');
+        showNotification(t('app.notification_loan_created'));
         await fetchPrestamos();
         await fetchLibros(); // Actualizar estado disponible de libros
       }
@@ -273,7 +277,7 @@ export default function App() {
     try {
       const res = await api.devolverPrestamo(id);
       if (res.success) {
-        showNotification('Devolución registrada correctamente.');
+        showNotification(t('app.notification_return_created'));
         await fetchPrestamos();
         await fetchLibros(); // Restaurar estado disponible del libro
       }
@@ -305,12 +309,12 @@ export default function App() {
       {!backendOnline && (
         <div className="bg-amber-500 text-white px-4 py-2.5 text-xs font-semibold flex items-center justify-center gap-2 shadow-xs">
           <AlertCircle className="w-4 h-4" />
-          <span>No se puede conectar con el backend Flask (http://127.0.0.1:5000). Asegúrate de tenerlo encendido con `python run.py`.</span>
+          <span>{t('app.offline_warning')}</span>
           <button
             onClick={handleRefreshAll}
             className="ml-2 px-2 py-0.5 bg-white/20 hover:bg-white/30 rounded text-xs transition-colors flex items-center gap-1 cursor-pointer"
           >
-            <RefreshCw className="w-3 h-3" /> Reintentar
+            <RefreshCw className="w-3 h-3" /> {t('app.offline_retry')}
           </button>
         </div>
       )}
@@ -321,8 +325,8 @@ export default function App() {
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Inventario de Libros</h1>
-                <p className="text-sm text-slate-500">Explora, busca y administra los libros de la biblioteca.</p>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('app.books_title')}</h1>
+                <p className="text-sm text-slate-500">{t('app.books_subtitle')}</p>
               </div>
             </div>
 
@@ -344,8 +348,8 @@ export default function App() {
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Directorio de Autores</h1>
-                <p className="text-sm text-slate-500">Gestiona los autores registrados y sus obras asociadas.</p>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('app.authors_title')}</h1>
+                <p className="text-sm text-slate-500">{t('app.authors_subtitle')}</p>
               </div>
             </div>
 
@@ -367,8 +371,8 @@ export default function App() {
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Registro de Usuarios (Stateful)</h1>
-                <p className="text-sm text-slate-500">Gestiona los lectores registrados en la base de datos (Estudiantes, Profesores, General).</p>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('app.users_title')}</h1>
+                <p className="text-sm text-slate-500">{t('app.users_subtitle')}</p>
               </div>
             </div>
 
@@ -386,8 +390,8 @@ export default function App() {
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Control de Préstamos (Stateful)</h1>
-                <p className="text-sm text-slate-500">Presta libros a los usuarios registrados y gestiona el historial de devoluciones.</p>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('app.loans_title')}</h1>
+                <p className="text-sm text-slate-500">{t('app.loans_subtitle')}</p>
               </div>
             </div>
 
@@ -407,8 +411,8 @@ export default function App() {
           <section>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Herramientas Utilitarias (Stateless)</h1>
-                <p className="text-sm text-slate-500">Cita libros en normas académicas o calcula multas y plazos en tiempo real sin guardar en BD.</p>
+                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('app.tools_title')}</h1>
+                <p className="text-sm text-slate-500">{t('app.tools_subtitle')}</p>
               </div>
             </div>
 

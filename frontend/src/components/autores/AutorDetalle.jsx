@@ -1,7 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Book, User, Globe, Calendar, CheckCircle, Clock } from 'lucide-react';
 
 export default function AutorDetalle({ autor, isOpen, onClose, onSelectLibro }) {
+  const { t } = useTranslation();
   if (!isOpen || !autor) return null;
 
   return (
@@ -23,7 +25,7 @@ export default function AutorDetalle({ autor, isOpen, onClose, onSelectLibro }) 
                 )}
                 {autor.fecha_creacion && (
                   <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> Registrado:{' '}
+                    <Calendar className="w-3 h-3" /> {t('authors.detail.registered')}{' '}
                     {new Date(autor.fecha_creacion).toLocaleDateString()}
                   </span>
                 )}
@@ -32,7 +34,7 @@ export default function AutorDetalle({ autor, isOpen, onClose, onSelectLibro }) 
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -43,15 +45,15 @@ export default function AutorDetalle({ autor, isOpen, onClose, onSelectLibro }) 
           <div className="flex items-center justify-between">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
               <Book className="w-4 h-4 text-indigo-500" />
-              Libros Publicados ({autor.libros ? autor.libros.length : 0})
+              {t('authors.detail.published_books', { count: autor.libros ? autor.libros.length : 0 })}
             </h4>
           </div>
 
           {(!autor.libros || autor.libros.length === 0) ? (
             <div className="text-center py-8 px-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
               <Book className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm font-medium text-slate-600">No hay libros registrados para este autor.</p>
-              <p className="text-xs text-slate-400 mt-1">Crea un libro y asígnalo a este autor en la pestaña de Libros.</p>
+              <p className="text-sm font-medium text-slate-600">{t('authors.detail.empty_books_title')}</p>
+              <p className="text-xs text-slate-400 mt-1">{t('authors.detail.empty_books_desc')}</p>
             </div>
           ) : (
             <div className="space-y-2.5">
@@ -68,18 +70,18 @@ export default function AutorDetalle({ autor, isOpen, onClose, onSelectLibro }) 
                           {libro.genero}
                         </span>
                       )}
-                      {libro.anio_publicacion && <span>Año: {libro.anio_publicacion}</span>}
+                      {libro.anio_publicacion && <span>{t('authors.detail.year')} {libro.anio_publicacion}</span>}
                     </div>
                   </div>
 
                   <div>
                     {libro.disponible ? (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <CheckCircle className="w-3 h-3" /> Disponible
+                        <CheckCircle className="w-3 h-3" /> {t('common.available')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                        <Clock className="w-3 h-3" /> Prestado
+                        <Clock className="w-3 h-3" /> {t('common.borrowed')}
                       </span>
                     )}
                   </div>
@@ -93,9 +95,9 @@ export default function AutorDetalle({ autor, isOpen, onClose, onSelectLibro }) 
         <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200/60 rounded-xl transition-colors"
+            className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200/60 rounded-xl transition-colors cursor-pointer"
           >
-            Cerrar
+            {t('common.close')}
           </button>
         </div>
       </div>

@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   History, Clock, Filter, BookPlus, RotateCcw, 
   HandHelping, Edit, Trash, FileSpreadsheet, Activity, RefreshCw 
 } from 'lucide-react';
 
 export default function HistorialList({ historial, loading, onRefresh }) {
+  const { t } = useTranslation();
   const [filterTipo, setFilterTipo] = useState('');
 
   const filteredHistorial = useMemo(() => {
@@ -17,37 +19,37 @@ export default function HistorialList({ historial, loading, onRefresh }) {
       case 'PRESTAMO':
         return {
           icon: <HandHelping className="w-3.5 h-3.5" />,
-          label: 'Préstamo',
+          label: t('history.badge_loan'),
           className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
         };
       case 'DEVOLUCION':
         return {
           icon: <RotateCcw className="w-3.5 h-3.5" />,
-          label: 'Devolución',
+          label: t('history.badge_return'),
           className: 'bg-indigo-50 text-indigo-700 border-indigo-200',
         };
       case 'CREACION_LIBRO':
         return {
           icon: <BookPlus className="w-3.5 h-3.5" />,
-          label: 'Nuevo Libro',
+          label: t('history.badge_new_book'),
           className: 'bg-sky-50 text-sky-700 border-sky-200',
         };
       case 'IMPORTACION_EXCEL':
         return {
           icon: <FileSpreadsheet className="w-3.5 h-3.5" />,
-          label: 'Importación',
+          label: t('history.badge_import'),
           className: 'bg-teal-50 text-teal-700 border-teal-200',
         };
       case 'ELIMINACION_LIBRO':
         return {
           icon: <Trash className="w-3.5 h-3.5" />,
-          label: 'Eliminado',
+          label: t('history.badge_deleted'),
           className: 'bg-rose-50 text-rose-700 border-rose-200',
         };
       default:
         return {
           icon: <Activity className="w-3.5 h-3.5" />,
-          label: tipo || 'Movimiento',
+          label: tipo || t('history.badge_movement'),
           className: 'bg-slate-50 text-slate-700 border-slate-200',
         };
     }
@@ -59,13 +61,13 @@ export default function HistorialList({ historial, loading, onRefresh }) {
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className="text-slate-500 font-semibold flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" /> Filtrar por Tipo:
+            <Filter className="w-3.5 h-3.5" /> {t('history.filter_label')}
           </span>
           {[
-            { id: '', label: 'Todos' },
-            { id: 'PRESTAMO', label: 'Préstamos' },
-            { id: 'DEVOLUCION', label: 'Devoluciones' },
-            { id: 'CREACION_LIBRO', label: 'Creaciones' },
+            { id: '', label: t('history.all') },
+            { id: 'PRESTAMO', label: t('history.loans') },
+            { id: 'DEVOLUCION', label: t('history.returns') },
+            { id: 'CREACION_LIBRO', label: t('history.creations') },
           ].map((f) => (
             <button
               key={f.id}
@@ -86,7 +88,7 @@ export default function HistorialList({ historial, loading, onRefresh }) {
           className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer ml-auto"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>Actualizar Historial</span>
+          <span>{t('history.refresh')}</span>
         </button>
       </div>
 
@@ -103,9 +105,9 @@ export default function HistorialList({ historial, loading, onRefresh }) {
       ) : filteredHistorial.length === 0 ? (
         <div className="text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl p-8">
           <History className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-slate-700">Sin movimientos registrados aún</h3>
+          <h3 className="text-base font-semibold text-slate-700">{t('history.empty_title')}</h3>
           <p className="text-sm text-slate-500 mt-1">
-            Los préstamos, devoluciones y modificaciones de inventario se registrarán automáticamente aquí.
+            {t('history.empty_desc')}
           </p>
         </div>
       ) : (

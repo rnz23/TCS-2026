@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { 
   BookOpen, BookPlus, Search, Filter, Edit2, Trash2, 
   CheckCircle2, Clock, User, Calendar, Tag, FileSpreadsheet, 
@@ -17,6 +18,7 @@ export default function LibrosList({
   onToggleDisponibilidad,
   onImportarExcel,
 }) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedAutorId, setSelectedAutorId] = useState('');
   const [selectedDisponible, setSelectedDisponible] = useState('');
@@ -56,11 +58,11 @@ export default function LibrosList({
 
     // 4. Ordenamiento
     if (sortBy === 'az') {
-      result.sort((a, b) => (a.titulo || '').localeCompare(b.titulo || '', 'es', { sensitivity: 'base' }));
+      result.sort((a, b) => (a.titulo || '').localeCompare(b.titulo || '', undefined, { sensitivity: 'base' }));
     } else if (sortBy === 'za') {
-      result.sort((a, b) => (b.titulo || '').localeCompare(a.titulo || '', 'es', { sensitivity: 'base' }));
+      result.sort((a, b) => (b.titulo || '').localeCompare(a.titulo || '', undefined, { sensitivity: 'base' }));
     } else if (sortBy === 'autor') {
-      result.sort((a, b) => (a.autor_nombre || '').localeCompare(b.autor_nombre || '', 'es', { sensitivity: 'base' }));
+      result.sort((a, b) => (a.autor_nombre || '').localeCompare(b.autor_nombre || '', undefined, { sensitivity: 'base' }));
     } else if (sortBy === 'reciente') {
       result.sort((a, b) => b.id - a.id);
     }
@@ -123,7 +125,7 @@ export default function LibrosList({
   };
 
   const handleDelete = (libro) => {
-    if (window.confirm(`¿Estás seguro de que deseas eliminar el libro "${libro.titulo}"?`)) {
+    if (window.confirm(t('books.delete_confirm', { title: libro.titulo }))) {
       onEliminarLibro(libro.id);
     }
   };
@@ -149,7 +151,7 @@ export default function LibrosList({
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Buscar por título, autor o género..."
+              placeholder={t('books.search_placeholder')}
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
@@ -157,7 +159,7 @@ export default function LibrosList({
             {searchTerm && (
               <button 
                 onClick={() => { setSearchTerm(''); setCurrentPage(1); }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -170,10 +172,10 @@ export default function LibrosList({
               onClick={() => fileInputRef.current?.click()}
               disabled={importing}
               className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-sm font-semibold rounded-xl transition-all cursor-pointer disabled:opacity-50"
-              title="Importar archivo Excel"
+              title={t('books.import_excel')}
             >
               <FileSpreadsheet className="w-4 h-4" />
-              <span>{importing ? 'Importando...' : 'Importar Excel'}</span>
+              <span>{importing ? t('books.importing') : t('books.import_excel')}</span>
             </button>
 
             <button
@@ -181,7 +183,7 @@ export default function LibrosList({
               className="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-100 transition-all cursor-pointer"
             >
               <BookPlus className="w-4 h-4" />
-              <span>Nuevo Libro</span>
+              <span>{t('books.new_book')}</span>
             </button>
           </div>
         </div>
@@ -192,16 +194,16 @@ export default function LibrosList({
             {/* Sort Dropdown */}
             <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
               <ArrowUpDown className="w-3.5 h-3.5 text-indigo-500" />
-              <span className="font-semibold text-slate-600 mr-1">Orden:</span>
+              <span className="font-semibold text-slate-600 mr-1">{t('common.order')}</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="bg-transparent text-slate-800 font-medium focus:outline-none cursor-pointer"
               >
-                <option value="az">Alfabético (A - Z)</option>
-                <option value="za">Alfabético (Z - A)</option>
-                <option value="autor">Por Autor (A - Z)</option>
-                <option value="reciente">Más Recientes (ID)</option>
+                <option value="az">{t('books.sort_az')}</option>
+                <option value="za">{t('books.sort_za')}</option>
+                <option value="autor">{t('books.sort_author')}</option>
+                <option value="reciente">{t('books.sort_recent')}</option>
               </select>
             </div>
 
@@ -211,7 +213,7 @@ export default function LibrosList({
               onChange={(e) => { setSelectedAutorId(e.target.value); setCurrentPage(1); }}
               className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer max-w-[200px] truncate"
             >
-              <option value="">Todos los autores ({autores.length})</option>
+              <option value="">{t('books.all_authors', { count: autores.length })}</option>
               {autores.map((a) => (
                 <option key={a.id} value={a.id}>{a.nombre}</option>
               ))}
@@ -223,9 +225,9 @@ export default function LibrosList({
               onChange={(e) => { setSelectedDisponible(e.target.value); setCurrentPage(1); }}
               className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
             >
-              <option value="">Todos los estados</option>
-              <option value="true">Solo disponibles</option>
-              <option value="false">Solo prestados</option>
+              <option value="">{t('books.all_statuses')}</option>
+              <option value="true">{t('books.only_available')}</option>
+              <option value="false">{t('books.only_borrowed')}</option>
             </select>
 
             {hasFilters && (
@@ -233,7 +235,7 @@ export default function LibrosList({
                 onClick={handleClearFilters}
                 className="text-slate-500 hover:text-rose-600 underline cursor-pointer ml-1 font-medium flex items-center gap-1"
               >
-                <X className="w-3 h-3" /> Limpiar filtros
+                <X className="w-3 h-3" /> {t('common.clean_filters')}
               </button>
             )}
           </div>
@@ -241,8 +243,8 @@ export default function LibrosList({
           {/* Records Counter & Page Size */}
           <div className="flex items-center gap-2 text-slate-500 ml-auto">
             <span>
-              Mostrando <strong className="text-slate-700">{totalItems > 0 ? (validCurrentPage - 1) * itemsPerPage + 1 : 0}</strong>-
-              <strong className="text-slate-700">{Math.min(validCurrentPage * itemsPerPage, totalItems)}</strong> de <strong className="text-slate-700">{totalItems}</strong>
+              {t('common.showing')} <strong className="text-slate-700">{totalItems > 0 ? (validCurrentPage - 1) * itemsPerPage + 1 : 0}</strong>-
+              <strong className="text-slate-700">{Math.min(validCurrentPage * itemsPerPage, totalItems)}</strong> {t('common.of')} <strong className="text-slate-700">{totalItems}</strong>
             </span>
             <span className="text-slate-300">|</span>
             <select
@@ -250,10 +252,10 @@ export default function LibrosList({
               onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
               className="bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-xs text-slate-700 cursor-pointer"
             >
-              <option value={15}>15 por pág.</option>
-              <option value={25}>25 por pág.</option>
-              <option value={50}>50 por pág.</option>
-              <option value={100}>100 por pág.</option>
+              <option value={15}>{t('common.per_page', { count: 15 })}</option>
+              <option value={25}>{t('common.per_page', { count: 25 })}</option>
+              <option value={50}>{t('common.per_page', { count: 50 })}</option>
+              <option value={100}>{t('common.per_page', { count: 100 })}</option>
             </select>
           </div>
         </div>
@@ -272,9 +274,9 @@ export default function LibrosList({
       ) : paginatedLibros.length === 0 ? (
         <div className="text-center py-16 bg-white border border-dashed border-slate-200 rounded-2xl p-8">
           <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-slate-700">No se encontraron libros</h3>
+          <h3 className="text-base font-semibold text-slate-700">{t('books.empty_title')}</h3>
           <p className="text-sm text-slate-500 mt-1">
-            {hasFilters ? 'Intenta modificar tus criterios de búsqueda o filtros.' : 'Comienza registrando o importando libros.'}
+            {hasFilters ? t('books.empty_desc_filtered') : t('books.empty_desc_default')}
           </p>
         </div>
       ) : (
@@ -290,7 +292,7 @@ export default function LibrosList({
                       className="flex items-center gap-1.5 hover:text-indigo-600 cursor-pointer group"
                       title="Alternar orden A-Z / Z-A"
                     >
-                      <span>Título de la Obra</span>
+                      <span>{t('books.col_title')}</span>
                       {sortBy === 'az' ? (
                         <ArrowUpAZ className="w-3.5 h-3.5 text-indigo-600" />
                       ) : sortBy === 'za' ? (
@@ -305,14 +307,14 @@ export default function LibrosList({
                       onClick={() => setSortBy('autor')}
                       className="flex items-center gap-1.5 hover:text-indigo-600 cursor-pointer"
                     >
-                      <span>Autor</span>
+                      <span>{t('books.col_author')}</span>
                       {sortBy === 'autor' && <ArrowUpAZ className="w-3.5 h-3.5 text-indigo-600" />}
                     </button>
                   </th>
-                  <th className="py-3 px-4">Género</th>
-                  <th className="py-3 px-4 text-center">Año</th>
-                  <th className="py-3 px-4 text-center">Estado</th>
-                  <th className="py-3 px-4 text-right pr-6">Acciones</th>
+                  <th className="py-3 px-4">{t('books.col_genre')}</th>
+                  <th className="py-3 px-4 text-center">{t('books.col_year')}</th>
+                  <th className="py-3 px-4 text-center">{t('books.col_status')}</th>
+                  <th className="py-3 px-4 text-right pr-6">{t('books.col_actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -366,17 +368,17 @@ export default function LibrosList({
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
                             : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
                         }`}
-                        title="Clic para cambiar estado"
+                        title={t('books.toggle_status_title')}
                       >
                         {libro.disponible ? (
                           <>
                             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>Disponible</span>
+                            <span>{t('common.available')}</span>
                           </>
                         ) : (
                           <>
                             <Clock className="w-3 h-3 text-amber-600" />
-                            <span>Prestado</span>
+                            <span>{t('common.borrowed')}</span>
                           </>
                         )}
                       </button>
@@ -388,14 +390,14 @@ export default function LibrosList({
                         <button
                           onClick={() => handleOpenEdit(libro)}
                           className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
-                          title="Editar libro"
+                          title={t('books.edit_book_tooltip')}
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(libro)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                          title="Eliminar libro"
+                          title={t('books.delete_book_tooltip')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -411,7 +413,7 @@ export default function LibrosList({
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3.5 bg-slate-50/70 border-t border-slate-200 text-xs text-slate-600">
               <div>
-                Página <strong className="text-slate-800">{validCurrentPage}</strong> de <strong className="text-slate-800">{totalPages}</strong>
+                {t('common.page')} <strong className="text-slate-800">{validCurrentPage}</strong> {t('common.of')} <strong className="text-slate-800">{totalPages}</strong>
               </div>
 
               <div className="flex items-center gap-1">
@@ -419,8 +421,8 @@ export default function LibrosList({
                 <button
                   onClick={() => handlePageChange(1)}
                   disabled={validCurrentPage === 1}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  title="Primera página"
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title={t('books.first_page_tooltip')}
                 >
                   <ChevronsLeft className="w-4 h-4" />
                 </button>
@@ -429,10 +431,10 @@ export default function LibrosList({
                 <button
                   onClick={() => handlePageChange(validCurrentPage - 1)}
                   disabled={validCurrentPage === 1}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  <span>Anterior</span>
+                  <span>{t('common.previous')}</span>
                 </button>
 
                 {/* Quick Page Jump Buttons */}
@@ -453,7 +455,7 @@ export default function LibrosList({
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`w-7 h-7 rounded-lg font-semibold text-xs transition-colors ${
+                        className={`w-7 h-7 rounded-lg font-semibold text-xs transition-colors cursor-pointer ${
                           validCurrentPage === pageNum
                             ? 'bg-indigo-600 text-white shadow-xs'
                             : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100'
@@ -469,9 +471,9 @@ export default function LibrosList({
                 <button
                   onClick={() => handlePageChange(validCurrentPage + 1)}
                   disabled={validCurrentPage === totalPages}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
                 >
-                  <span>Siguiente</span>
+                  <span>{t('common.next')}</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
@@ -479,8 +481,8 @@ export default function LibrosList({
                 <button
                   onClick={() => handlePageChange(totalPages)}
                   disabled={validCurrentPage === totalPages}
-                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  title="Última página"
+                  className="p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  title={t('books.last_page_tooltip')}
                 >
                   <ChevronsRight className="w-4 h-4" />
                 </button>

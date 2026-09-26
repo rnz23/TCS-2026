@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
 
 export default function Notification({ notification, onClose }) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!notification) return;
     const timer = setTimeout(() => {
@@ -26,7 +29,7 @@ export default function Notification({ notification, onClose }) {
       <button
         onClick={onClose}
         className="text-slate-400 hover:text-slate-600 transition-colors p-1 -mr-1"
-        aria-label="Cerrar notificacion"
+        aria-label={t('notification.close_aria')}
       >
         <X className="w-4 h-4" />
       </button>

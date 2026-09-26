@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Copy, Check, Quote, Sparkles, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
 export default function CitaModal({ isOpen, onClose, libro }) {
+  const { t } = useTranslation();
   const [style, setStyle] = useState('apa');
   const [citationData, setCitationData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -56,7 +58,7 @@ export default function CitaModal({ isOpen, onClose, libro }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold">Generador de Cita Bibliográfica</h3>
+                <h3 className="text-lg font-bold">{t('tools.cita_modal.title')}</h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 uppercase tracking-wide">
                   Stateless
                 </span>
@@ -75,7 +77,7 @@ export default function CitaModal({ isOpen, onClose, libro }) {
         {/* Style Selector Tabs */}
         <div className="px-6 pt-5 pb-2 bg-slate-50 border-b border-slate-200">
           <label className="text-xs font-semibold text-slate-500 mb-2 block uppercase tracking-wider">
-            Selecciona el Formato:
+            {t('tools.cita_modal.format_selector')}
           </label>
           <div className="flex flex-wrap gap-1.5">
             {STYLES.map((s) => (
@@ -99,11 +101,11 @@ export default function CitaModal({ isOpen, onClose, libro }) {
           <div className="relative">
             {loading ? (
               <div className="h-28 bg-slate-100 rounded-2xl animate-pulse flex items-center justify-center text-xs text-slate-400">
-                Generando cita en tiempo real...
+                {t('tools.cita_modal.loading')}
               </div>
             ) : (
               <div className="p-4 bg-slate-900 text-slate-100 rounded-2xl font-mono text-xs leading-relaxed border border-slate-800 shadow-inner break-words select-all whitespace-pre-wrap">
-                {citationData?.citation || 'Cargando formato...'}
+                {citationData?.citation || t('common.loading')}
               </div>
             )}
           </div>
@@ -111,7 +113,7 @@ export default function CitaModal({ isOpen, onClose, libro }) {
           <div className="text-xs text-slate-500 bg-indigo-50/70 border border-indigo-100 rounded-xl p-3 flex items-start gap-2">
             <Sparkles className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
             <p>
-              Esta función es <strong>Stateless</strong>: la referencia se formatea y calcula al vuelo bajo demanda sin guardar sesiones en el servidor.
+              {t('tools.cita_modal.stateless_info')}
             </p>
           </div>
         </div>
@@ -122,7 +124,7 @@ export default function CitaModal({ isOpen, onClose, libro }) {
             onClick={onClose}
             className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
           >
-            Cerrar
+            {t('common.close')}
           </button>
 
           <button
@@ -137,12 +139,12 @@ export default function CitaModal({ isOpen, onClose, libro }) {
             {copied ? (
               <>
                 <Check className="w-4 h-4" />
-                <span>¡Copiado al portapapeles!</span>
+                <span>{t('tools.cita_modal.copied_btn')}</span>
               </>
             ) : (
               <>
                 <Copy className="w-4 h-4" />
-                <span>Copiar Cita</span>
+                <span>{t('tools.cita_modal.copy_btn')}</span>
               </>
             )}
           </button>

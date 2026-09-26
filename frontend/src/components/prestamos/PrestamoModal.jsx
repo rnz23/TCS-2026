@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, HandHelping, User, Calendar, BookOpen, AlertCircle, Phone, Mail, FileText } from 'lucide-react';
 
 export default function PrestamoModal({ isOpen, onClose, onSave, preselectedLibro, librosDisponibles }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     libro_id: '',
     lector_nombre: '',
@@ -29,10 +31,10 @@ export default function PrestamoModal({ isOpen, onClose, onSave, preselectedLibr
 
   const validate = () => {
     const errs = {};
-    if (!formData.libro_id) errs.libro_id = 'Debes seleccionar un libro disponible.';
-    if (!formData.lector_nombre.trim()) errs.lector_nombre = 'El nombre del lector es obligatorio.';
+    if (!formData.libro_id) errs.libro_id = t('loans.modal.err_select_both');
+    if (!formData.lector_nombre.trim()) errs.lector_nombre = t('users.modal.name_label');
     if (formData.dias_prestamo < 1 || formData.dias_prestamo > 90) {
-      errs.dias_prestamo = 'El plazo de préstamo debe ser entre 1 y 90 días.';
+      errs.dias_prestamo = '1-90';
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -70,12 +72,12 @@ export default function PrestamoModal({ isOpen, onClose, onSave, preselectedLibr
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold">Registrar Nuevo Préstamo</h3>
+                <h3 className="text-lg font-bold">{t('loans.modal.title')}</h3>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 uppercase tracking-wide">
                   Stateful
                 </span>
               </div>
-              <p className="text-xs text-emerald-200 mt-0.5">Asigna un libro disponible a un lector con fecha límite</p>
+              <p className="text-xs text-emerald-200 mt-0.5">{t('app.loans_subtitle')}</p>
             </div>
           </div>
           <button
@@ -219,7 +221,7 @@ export default function PrestamoModal({ isOpen, onClose, onSave, preselectedLibr
               onClick={onClose}
               className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 transition-colors cursor-pointer"
             >
-              Cancelar
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
@@ -227,7 +229,7 @@ export default function PrestamoModal({ isOpen, onClose, onSave, preselectedLibr
               className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-200 transition-all cursor-pointer disabled:opacity-50"
             >
               <HandHelping className="w-4 h-4" />
-              <span>{loading ? 'Registrando...' : 'Confirmar Préstamo'}</span>
+              <span>{loading ? t('loans.modal.btn_processing') : t('loans.modal.btn_confirm')}</span>
             </button>
           </div>
         </form>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, UserPlus, Save, Loader2 } from 'lucide-react';
 
 export default function AutorModal({ isOpen, onClose, onSave, autorToEdit }) {
+  const { t } = useTranslation();
   const [nombre, setNombre] = useState('');
   const [nacionalidad, setNacionalidad] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,7 +25,7 @@ export default function AutorModal({ isOpen, onClose, onSave, autorToEdit }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!nombre.trim()) {
-      setError('El nombre del autor es obligatorio.');
+      setError(t('authors.modal.err_name_required'));
       return;
     }
 
@@ -36,7 +38,7 @@ export default function AutorModal({ isOpen, onClose, onSave, autorToEdit }) {
       });
       onClose();
     } catch (err) {
-      setError(err.message || 'Error al guardar el autor.');
+      setError(err.message || t('authors.modal.err_save'));
     } finally {
       setLoading(false);
     }
@@ -52,12 +54,12 @@ export default function AutorModal({ isOpen, onClose, onSave, autorToEdit }) {
               {autorToEdit ? <Save className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
             </div>
             <h3 className="text-base font-semibold text-slate-800">
-              {autorToEdit ? 'Editar Autor' : 'Nuevo Autor'}
+              {autorToEdit ? t('authors.modal.edit_title') : t('authors.modal.new_title')}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -73,11 +75,11 @@ export default function AutorModal({ isOpen, onClose, onSave, autorToEdit }) {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Nombre Completo <span className="text-rose-500">*</span>
+              {t('authors.modal.name_label')} <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
-              placeholder="Ej. Gabriel García Márquez"
+              placeholder={t('authors.modal.name_placeholder')}
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
@@ -87,11 +89,11 @@ export default function AutorModal({ isOpen, onClose, onSave, autorToEdit }) {
 
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1.5">
-              Nacionalidad (Opcional)
+              {t('authors.modal.nationality_label')}
             </label>
             <input
               type="text"
-              placeholder="Ej. Colombiana"
+              placeholder={t('authors.modal.nationality_placeholder')}
               value={nacionalidad}
               onChange={(e) => setNacionalidad(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white transition-all"
@@ -103,22 +105,22 @@ export default function AutorModal({ isOpen, onClose, onSave, autorToEdit }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
-              Cancelar
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-md shadow-indigo-200 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-md shadow-indigo-200 transition-all disabled:opacity-50 cursor-pointer"
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Guardando...</span>
+                  <span>{t('common.saving')}</span>
                 </>
               ) : (
-                <span>{autorToEdit ? 'Actualizar' : 'Crear Autor'}</span>
+                <span>{autorToEdit ? t('authors.modal.btn_update') : t('authors.modal.btn_create')}</span>
               )}
             </button>
           </div>
